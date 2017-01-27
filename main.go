@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -52,19 +51,57 @@ type Teacher struct {
 	IndividualId    int `json:"individualId"`
 }
 
+type Families struct {
+	Families []Family `json:"families"`
+}
+
+type Family struct {
+	EmailAddress        string `json:"emailAddress"`
+	FormattedCoupleName string `json:"formattedCoupleName"`
+	HeadOfHouse         Person `json:"headOfHouse"`
+	IsAssignedHT        bool   `json:"isAssignedHT"`
+	Phone               bool   `json:"phone"`
+	Spouse              Person `json:"spouse"`
+}
+
+type Person struct {
+	Email                   string `json:"email"`
+	FormattedName           string `json:"formattedName"`
+	Gender                  string `json:"gender"`
+	GivenName1              string `json:"givenName1"`
+	HeadOfHouseIndividualId int    `json:"headOfHouseIndividualId"`
+	ImageId                 string `json:"imageId"`
+	IndividualId            int    `json:"individualId"`
+	IsAdult                 bool   `json:"isAdult"`
+	IsAssignedVT            bool   `json:"isAssignedVT"`
+	Phone                   string `json:"phone"`
+	Surname                 string `json:"surname"`
+}
+
 func main() {
-	userId := 20597359310
-	jsonData := readJson("./json_files/757359_2.json")
-	postitionData := readJson("./json_files/positions.json")
-	var districts []*District
-	var positions Positions
-	json.Unmarshal(jsonData, &districts)
-	json.Unmarshal(postitionData, &positions)
-	positionIds := getPositionIds(&positions, userId)
-	fmt.Println("positionIds", positionIds)
-	userDistricts := getDistricts(districts, positionIds)
-	messageDistricts(userDistricts)
-	fmt.Printf("%#v", userDistricts)
+	userIds := []int{20597359310}
+	api := &DistrictApi{
+		DistrictsPath: "./json_files/757359_2.json",
+		PositionsPath: "./json_files/positions.json",
+	}
+	reporter := Report{DistrictApi: api}
+	for _, id := range userIds {
+		if err := reporter.Message(id); err != nil {
+			panic(err)
+		}
+	}
+
+	//jsonData := readJson("./json_files/757359_2.json")
+	//postitionData := readJson("./json_files/positions.json")
+	//var districts []*District
+	//var positions Positions
+	//json.Unmarshal(jsonData, &districts)
+	//json.Unmarshal(postitionData, &positions)
+	//positionIds := getPositionIds(&positions, userId)
+	//fmt.Println("positionIds", positionIds)
+	//userDistricts := getDistricts(districts, positionIds)
+	//messageDistricts(userDistricts)
+	//fmt.Printf("%#v", userDistricts)
 }
 
 func readJson(filePath string) []byte {
